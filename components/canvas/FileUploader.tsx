@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,6 +12,13 @@ import BarChart from "./BarChart";
 import { Upload, FileText, Send, RefreshCw } from 'lucide-react';
 
 type FileUploadProps = {}
+
+interface Candidate {
+  content?: {
+    parts: { text: string }[];
+  };
+}
+
 
 const FileUpload: React.FC<FileUploadProps> = () => {
   const [fileName, setFileName] = useState<string | null>(null);
@@ -114,17 +123,22 @@ const handleRefresh = () => {
           const response = await model.generateContent([prompt]);
           console.log("Gemini Response:", response);
 
-          const candidates = response?.response?.candidates;
+          const candidates = response?.response?.candidates as Candidate[];
           if (!candidates || candidates.length === 0) {
             console.warn("No candidates found in the response.");
             setLoading(false);
             return;
           }
 
-          const rawText = candidates[0]?.content?.parts
-            ?.map((part: any) => part.text)
-            .join(" ")
-            .trim();
+          // const rawText = candidates[0]?.content?.parts
+          //   ?.map((part: any) => part.text)
+          //   .join(" ")
+          //   .trim();
+
+          let rawText;
+          if (candidates?.length > 0) {
+             rawText = candidates[0].content?.parts.map((part) => part.text).join(" ");
+          }
 
           // regex to match the JSON and extract it
           const jsonMatch = rawText?.match(/\`\`\`json\n([\s\S]*?)\`\`\`/);
