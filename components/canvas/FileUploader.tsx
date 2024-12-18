@@ -11,7 +11,7 @@ import TopicGroupsCard from "./TopicGroupsCard";
 import BarChart from "./BarChart";
 import { Upload, FileText, Send, RefreshCw } from 'lucide-react';
 
-type FileUploadProps = {}
+type FileUploadProps =  object;
 
 interface Candidate {
   content?: {
@@ -20,9 +20,11 @@ interface Candidate {
 }
 
 
+
 const FileUpload: React.FC<FileUploadProps> = () => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -121,7 +123,7 @@ const handleRefresh = () => {
 
         try {
           const response = await model.generateContent([prompt]);
-          console.log("Gemini Response:", response);
+          // console.log("Gemini Response:", response);
 
           const candidates = response?.response?.candidates as Candidate[];
           if (!candidates || candidates.length === 0) {
