@@ -46,7 +46,7 @@ NEXT_PUBLIC_GEMINI_API_KEY=your-gemini-api-key-here
 ```
 ### $. Run the development server
 
-Create a .env file in the root of the project to securely store your API key and other environment variables:
+Start the Next.js development server:
 
 ```bash
 npm run dev
