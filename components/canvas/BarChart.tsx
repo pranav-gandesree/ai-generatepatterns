@@ -4,7 +4,6 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Registering Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface FrequencyData {
@@ -17,15 +16,15 @@ interface BarChartProps {
 }
 
 const BarChart: React.FC<BarChartProps> = ({ data }) => {
-  // Prepare the data for the bar chart
+
   const chartData = {
-    labels: data?.map(item => item.term), // Labels from the terms
+    labels: data?.map(item => item.term), 
     datasets: [
       {
         label: 'Frequency',
-        data: data?.map(item => parseInt(item.frequency, 10)), // Frequencies as numbers
-        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Color of the bars
-        borderColor: 'rgba(75, 192, 192, 1)', // Border color of the bars
+        data: data?.map(item => parseInt(item.frequency, 10)),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)', 
+        borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
     ],

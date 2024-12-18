@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils"; 
+import { cn } from "@/lib/utils";
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import PatternDisplayAccordion from "./PatternDisplayAccordion";
 import TopicGroupsCard from "./TopicGroupsCard";
 import BarChart from "./BarChart";
+import { Upload, FileText, Send, RefreshCw } from 'lucide-react';
 
 type FileUploadProps = {}
 
@@ -14,12 +15,10 @@ const FileUpload: React.FC<FileUploadProps> = () => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
-  const [loading, setLoading] =  useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
 
   const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  
-
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,43 +30,35 @@ const FileUpload: React.FC<FileUploadProps> = () => {
       }
 
       setFileName(file.name);
-      setFileContent(null); 
+      setFileContent(null);
     }
   };
 
-
-
-
-const generatePrompt = (fileContent: string): string => `
-Analyze the following content from a text file. Your task is to perform the following analysis and provide the output in **structured markdown format**:
+  const generatePrompt = (fileContent: string): string => `
+Analyze the following content from a text file. Your task is to perform the following analysis and provide the output in **structured json format**:
 
 1. **Pattern Display**:
    - Identify recurring patterns or key ideas that appear multiple times in the text.
    - Display them clearly.
-   - (Optionally: Include a **Pie Chart** to represent the distribution of these patterns visually.)
 
 2. **Relationships Between Parsed Content**:
    - Identify connections or relationships between different parts of the content.
    - Show how concepts, ideas, or entities are linked together.
-   - (Optionally: Include a **Flowchart** or **Network Graph** to represent these relationships visually.)
 
 3. **Group Similar Topics/Themes**:
    - Group the content based on similar topics or themes.
    - Provide a brief description for each group.
-   - (Optionally: Include a **Bar Graph** to show the frequency of each group or theme visually.)
 
 4. **Basic Frequency Analysis**:
    - Provide a list of the most frequent terms or concepts in the content.
    - Show their frequency and importance.
-   - (Optionally: Include a **Bar Chart** to represent the frequency of terms visually.)
 
 **Content**:
 
 ${fileContent}
 
 
-**Output Format** (Use this structure strictly, give output as an object):
-
+**Output Format** (Use this structure strictly, give output in json format):
 
 {
   "patternDisplay": [
@@ -76,7 +67,6 @@ ${fileContent}
   ],
   "relationships": {
     "description": "[Describe relationships clearly]",
-    "flowchart": "[Optional: Link or Data for Flowchart]"
   },
   "topicGroups": [
     {
@@ -96,58 +86,60 @@ ${fileContent}
   ]
 }
 
-
 `;
 
+const handleRefresh = () => {
+    setFileName(null);
+    setFileContent(null);
+    setAnalysisResults(null);
+    setLoading(false);
+  };
 
 
-const handleFileUpload = async () => {
+  const handleFileUpload = async () => {
     const inputElement = document.getElementById("file-upload") as HTMLInputElement;
     const file = inputElement?.files?.[0];
-  
+
     if (file) {
       const reader = new FileReader();
-  
+
       reader.onload = async () => {
         const content = reader.result as string;
         setFileContent(content);
         setLoading(true);
-  
+
         const prompt = generatePrompt(content);
-  
+
         try {
           const response = await model.generateContent([prompt]);
           console.log("Gemini Response:", response);
-  
+
           const candidates = response?.response?.candidates;
           if (!candidates || candidates.length === 0) {
             console.warn("No candidates found in the response.");
             setLoading(false);
             return;
           }
-  
+
           const rawText = candidates[0]?.content?.parts
             ?.map((part: any) => part.text)
             .join(" ")
             .trim();
-  
+
           // regex to match the JSON and extract it
-          const jsonMatch = rawText?.match(/```json\n([\s\S]*?)```/);
-  
+          const jsonMatch = rawText?.match(/\`\`\`json\n([\s\S]*?)\`\`\`/);
+
           if (jsonMatch) {
             const jsonText = jsonMatch[1];
             try {
-              const parsedJson = JSON.parse(jsonText); 
+              const parsedJson = JSON.parse(jsonText);
               setAnalysisResults(parsedJson);
-             
             } catch (error) {
               console.error("Error parsing JSON:", error);
               setAnalysisResults("Invalid JSON format");
-             
             }
           } else {
-            setAnalysisResults(rawText); 
-      
+            setAnalysisResults(rawText);
           }
         } catch (error) {
           console.error("Error with Gemini API:", error);
@@ -156,97 +148,103 @@ const handleFileUpload = async () => {
           setLoading(false);
         }
       };
-  
+
       reader.onerror = () => {
         alert("Error reading file");
       };
-  
+
       reader.readAsText(file);
     }
   };
 
-
-
   return (
-    <>
-    <div className="flex flex-col">
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-transparent shadow-md rounded-lg p-6 mb-8 border border-white">
+          <h2 className="text-2xl font-bold mb-4 text-gray-200">File Upload and Analysis</h2>
+          <div className="flex items-center space-x-4">
+            <label
+              htmlFor="file-upload"
+              className={cn(
+                "flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md shadow-sm cursor-pointer hover:bg-blue-700 transition-colors",
+                "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              )}
+            >
+              <Upload className="w-5 h-5 mr-2" />
+              <input
+                id="file-upload"
+                type="file"
+                accept=".txt"
+                className="hidden "
+                onChange={handleFileChange}
+              />
+              {fileName ? "Change File" : "Choose File"}
+            </label>
+            <Button
+              variant="outline"
+              disabled={!fileName}
+              onClick={handleFileUpload}
+              className="flex items-center"
+            >
+              <Send className="w-5 h-5 mr-2" />
+              Analyze File
+            </Button>
+            <Button
+              variant="outline"
+             
+              onClick={handleRefresh}
+              className="flex items-center"
+            >
+              <RefreshCw className="w-5 h-5 mr-2" />
+             Refresh
+            </Button>
+          </div>
+          {fileName && (
+            <p className="mt-2 text-sm text-gray-200 flex items-center">
+              <FileText className="w-4 h-4 mr-2" />
+              Selected File: {fileName}
+            </p>
+          )}
+        </div>
 
-    <div className="flex flex-col w-96 items-center justify-center gap-4 p-6 border border-gray-300 rounded-md shadow-sm">
-      <label
-        htmlFor="file-upload"
-        className={cn(
-          "flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer hover:bg-gray-50",
-          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        )}
-      >
-        <input
-          id="file-upload"
-          type="file"
-          accept=".txt"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        {fileName ? "Change File" : "Choose File"}
-      </label>
-      {fileName && (
-        <p className="text-sm text-gray-600">Selected File: {fileName}</p>
-      )}
-       <Button
-        variant="outline"
-        disabled={!fileName}
-        onClick={handleFileUpload}
-      >
-        Send File
-      </Button>
-    </div>
-
-    {/* <div>
-         {fileContent && (
-        <div className="w-full p-4 mt-4 bg-gray-100 border border-gray-300 rounded-md">
-          <h3 className="mb-2 text-sm font-bold text-gray-700">
-            File Contents:
-          </h3>
-          <pre className="text-sm text-gray-600 whitespace-pre-wrap">
-            {fileContent}
-          </pre>
-        </div>  
-      )}
-    </div> */}
-
-<div>
-          {loading ? (
-            <div className="w-full p-4 mt-4 bg-gray-200 border border-gray-400 rounded-md">
-              <p className="text-center text-lg text-gray-700">Generating response...</p>
-            </div>
-          ) : (
-            analysisResults && (
-              <div className="w-2/3 p-4 mt-4  rounded-md text-gray-100 flex flex-col justify-center items-center gap-4">
-                <h3 className="mb-2 text-sm font-bold text-gray-100">Analysis Results:</h3>
-                <div className="text-sm  whitespace-pre-wrap">
-
-                <div className=" border border-gray-400 p-8">
-                    <h4 className="font-bold">Pattern Display</h4>
-                    {/* {renderPatternDisplay(analysisResults?.patternDisplay)} */}
-                    <PatternDisplayAccordion patterns={analysisResults?.patternDisplay} />
+        {loading ? (
+          <div className="bg-gray-100 border border-gray-300 rounded-lg p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-lg text-gray-700">Generating analysis...</p>
+          </div>
+        ) : (
+          analysisResults && (
+            <div className="bg-transparent shadow-md rounded-lg p-6">
+              <h3 className="text-xl font-bold mb-6 text-gray-200">Analysis Results</h3>
+              <div className="space-y-8">
+                <div className="border border-gray-200 rounded-lg p-6">
+                  <h4 className="font-bold text-lg mb-4 text-gray-300">Pattern Display</h4>
+                  <PatternDisplayAccordion patterns={analysisResults?.patternDisplay} />
                 </div>
 
-                    <div className="mt-4">
-                        <h4 className="font-bold mt-4">Topic Groups</h4>
-                        {/* {renderTopicGroups(analysisResults?.topicGroups)} */}
-                        <TopicGroupsCard groups={analysisResults?.topicGroups} />
-                    </div>
+                <div>
+                    <h4 className="font-bold text-xl mb-4 text-gray-200">Relationships between parsed content</h4>
+                    <p className="text-gray-300">{analysisResults?.relationships?.description}</p>
+  
+                </div>
 
-                  <h4 className="font-bold mt-4">Frequency Analysis</h4>
-                  {/* {renderFrequencyAnalysis(analysisResults?.frequencyAnalysis)} */}
+                <div>
+                  <h4 className="font-bold text-lg mb-4 text-gray-300">Topic Groups</h4>
+                  <TopicGroupsCard groups={analysisResults?.topicGroups} />
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-lg mb-4 text-gray-300">Frequency Analysis</h4>
                   <BarChart data={analysisResults?.frequencyAnalysis} />
                 </div>
               </div>
-            )
-          )}
-        </div>
+            </div>
+          )
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
 export default FileUpload;
+

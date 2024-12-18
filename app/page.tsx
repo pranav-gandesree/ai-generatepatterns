@@ -6,6 +6,7 @@ import FileUpload from "@/components/canvas/FileUploader";
 
   return (
     <div className="flex items-center justify-center min-h-screen">
+
       <FileUpload/>
     </div>
   );

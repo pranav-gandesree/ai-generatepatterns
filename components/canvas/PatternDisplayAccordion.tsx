@@ -16,9 +16,9 @@ const PatternDisplayAccordion: React.FC<PatternAccordionProps> = ({ patterns }) 
       {patterns?.map((item, index) => (
         <AccordionItem key={index} value={`item-${index}`}>
           <AccordionTrigger className="cursor-pointer p-4 rounded-md shadow-md">
-            <h4 className="font-bold no-underline">{item.pattern}</h4>
+            <h4 className="font-bold no-underline text-gray-200">{item.pattern}</h4>
           </AccordionTrigger>
-          <AccordionContent className="p-4 rounded-md shadow-inner mt-2">
+          <AccordionContent className="p-4 rounded-md shadow-inner mt-2 text-gray-300">
             <p>{item.details}</p>
           </AccordionContent>
         </AccordionItem>
