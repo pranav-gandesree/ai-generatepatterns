@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# chatpatternx Project Setup
+
+#### Here's the deployed project - https://chatpatternx.vercel.app
+
+
+This is a Next.js project that integrates Gemini AI API to analyze and generate insights from text files. The project allows users to upload `.txt` files, which are then analyzed and the results are displayed for the user.
+
+## Features
+- File upload and analysis functionality.
+- Integration with Gemini AI API to analyze file content.
+- Dynamic display of analysis results with pattern display, topic groups, and frequency analysis.
+
+## Prerequisites
+
+Before setting up the project, ensure that you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v16 or later)
+- [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+- [Git](https://git-scm.com/)
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to get your local development environment up and running.
+
+### 1. Clone the Repository
+
+Start by cloning the repository to your local machine:
+
+```bash
+git clone https://github.com/pranav-gandesree/ai-generatepatterns.git
+```
+
+### 2. Install dependencies
+
+Install all the necessary dependencies
+
+```bash
+npm install
+```
+### 3. Set Up Environment Variables
+
+Create a .env file in the root of the project to securely store your API key and other environment variables:
+
+```bash
+NEXT_PUBLIC_GEMINI_API_KEY=your-gemini-api-key-here
+```
+### $. Run the development server
+
+Create a .env file in the root of the project to securely store your API key and other environment variables:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
