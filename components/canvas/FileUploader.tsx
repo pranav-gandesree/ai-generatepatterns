@@ -9,7 +9,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import PatternDisplayAccordion from "./PatternDisplayAccordion";
 import TopicGroupsCard from "./TopicGroupsCard";
 import BarChart from "./BarChart";
-import { Upload, FileText, Send, RefreshCw } from 'lucide-react';
+import { Upload, FileText, Send, RefreshCw, File } from 'lucide-react';
 
 type FileUploadProps =  object;
 
@@ -111,6 +111,7 @@ const handleRefresh = () => {
     const inputElement = document.getElementById("file-upload") as HTMLInputElement;
     const file = inputElement?.files?.[0];
 
+
     if (file) {
       const reader = new FileReader();
 
@@ -173,6 +174,20 @@ const handleRefresh = () => {
     }
   };
 
+
+
+  const handleSampleFile = () => {
+    const fileUrl = "/sample-file.txt"; 
+
+    const a = document.createElement("a");
+    a.href = fileUrl;
+    a.download = "sample-file.txt"; 
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+};
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -196,6 +211,12 @@ const handleRefresh = () => {
               />
               {fileName ? "Change File" : "Choose File"}
             </label>
+
+            <Button variant="outline" onClick={handleSampleFile} className="flex items-center">
+              <File className="w-5 h-5 mr-2" />
+              Sample File
+            </Button>
+
             <Button
               variant="outline"
               disabled={!fileName}
